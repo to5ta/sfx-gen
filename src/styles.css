@@ -136,6 +136,26 @@ label {
   margin-bottom: 6px;
 }
 
+.preset-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 62px 62px;
+  gap: 6px;
+  align-items: center;
+}
+
+.duration-row {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+}
+
+.duration-row label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .settings-compact .control-group {
   gap: 2px;
   font-size: 0.62rem;
@@ -296,6 +316,15 @@ button:hover {
   z-index: 2;
 }
 
+.inline-download {
+  position: static;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  width: 100%;
+  color: rgba(31, 26, 24, 0.85);
+  border-color: rgba(31, 26, 24, 0.25);
+}
+
 .json-actions {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -306,6 +335,27 @@ button:hover {
   gap: 8px;
   align-items: end;
   margin-bottom: 10px;
+}
+
+.layer-dots {
+  display: none;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.layer-dots button {
+  width: 9px;
+  height: 9px;
+  min-height: 9px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(31, 26, 24, 0.3);
+  border: 0;
+}
+
+.layer-dots button.active {
+  background: var(--accent);
 }
 
 .export-row label {
@@ -372,6 +422,10 @@ button:hover {
     overflow-x: auto;
     padding-bottom: 4px;
     scroll-snap-type: x mandatory;
+  }
+
+  .layer-dots {
+    display: flex;
   }
 
   .layer-card {

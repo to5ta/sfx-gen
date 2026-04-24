@@ -8,6 +8,7 @@ const WAVE_TYPES = ['sine', 'square', 'saw', 'triangle', 'noise'];
 const FILTER_TYPES = ['lowpass', 'highpass'];
 
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
+const randomName = () => `sfx-${Math.random().toString(36).slice(2, 6)}`;
 
 const normalizeSpec = (spec, fallback = null) => {
   const base = deepClone(spec);
@@ -18,7 +19,7 @@ const normalizeSpec = (spec, fallback = null) => {
 
   return {
     ...base,
-    name: typeof base.name === 'string' ? base.name : 'sfx',
+    name: typeof base.name === 'string' && base.name.trim() ? base.name : randomName(),
     duration: Number.isFinite(base.duration) ? base.duration : 0.2,
     layers: Array.isArray(base.layers) ? base.layers : [],
     createdAt,
@@ -30,7 +31,7 @@ const state = {
   spec: normalizeSpec(cloneSpec(PRESETS[DEFAULT_PRESET])),
   selectedPreset: DEFAULT_PRESET,
   previewMode: 'wave',
-  exportName: cloneSpec(PRESETS[DEFAULT_PRESET]).name,
+  activeLayerDot: 0,
   rendered: null,
   audioContext: null,
   sourceNode: null,
@@ -46,16 +47,13 @@ app.innerHTML = `
       <p class="tagline">Browser additive synth for UI sonification</p>
       <p class="app-version">v${APP_SEMVER}</p>
       <div class="settings-compact">
-      <div class="control-group">
-        <label for="presetSelect">Preset</label>
-        <select id="presetSelect" class="compact-select"></select>
-      </div>
-      <div class="column-buttons">
+      <div class="preset-row">
+        <select id="presetSelect" class="compact-select" aria-label="Preset"></select>
         <button id="loadPresetBtn" type="button">Load</button>
-        <button id="randomizeBtn" type="button">Randomize</button>
+        <button id="randomizeBtn" type="button">Rand</button>
       </div>
-      <div class="control-group">
-        <label for="durationInput">Duration (s)</label>
+      <div class="duration-row">
+        <label for="durationInput">Duration</label>
         <div class="dual-input">
           <input id="durationSlider" type="range" min="0.03" max="2.5" step="0.001" />
           <input id="durationInput" type="number" min="0.03" max="2.5" step="0.01" />
@@ -68,22 +66,17 @@ app.innerHTML = `
         <h2>Preview</h2>
       </div>
       <div class="row-buttons">
-        <button id="playBtn" type="button">Play</button>
-        <button id="stopBtn" type="button">Stop</button>
+        <button id="playToggleBtn" type="button">Play</button>
       </div>
       <div class="preview-stack">
         <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
       </div>
+      <button id="downloadInlineBtn" class="inline-hint inline-download" type="button">download wav</button>
       <div class="row-buttons json-actions">
         <button id="applyJsonBtn" type="button">Apply JSON</button>
         <button id="copyJsonBtn" type="button">Copy JSON</button>
-      </div>
-      <div class="export-row">
-        <label for="exportNameInput">Export Name</label>
-        <input id="exportNameInput" type="text" placeholder="sfx" />
-        <button id="downloadBtn" type="button">WAV Download</button>
       </div>
       <textarea id="jsonEditor" spellcheck="false"></textarea>
       <p id="jsonStatus" class="hint"></p>
@@ -98,6 +91,7 @@ app.innerHTML = `
         </div>
       </div>
       <div id="layersContainer"></div>
+      <div id="layerDots" class="layer-dots"></div>
     </section>
   </main>
 `;
@@ -110,16 +104,15 @@ const ui = {
   durationSlider: document.getElementById('durationSlider'),
   addLayerBtn: document.getElementById('addLayerBtn'),
   layersContainer: document.getElementById('layersContainer'),
+  layerDots: document.getElementById('layerDots'),
   layerCount: document.getElementById('layerCount'),
-  playBtn: document.getElementById('playBtn'),
-  stopBtn: document.getElementById('stopBtn'),
-  downloadBtn: document.getElementById('downloadBtn'),
+  playToggleBtn: document.getElementById('playToggleBtn'),
+  downloadInlineBtn: document.getElementById('downloadInlineBtn'),
   canvasToggleHint: document.getElementById('canvasToggleHint'),
   waveCanvas: document.getElementById('waveCanvas'),
   specCanvas: document.getElementById('specCanvas'),
   applyJsonBtn: document.getElementById('applyJsonBtn'),
   copyJsonBtn: document.getElementById('copyJsonBtn'),
-  exportNameInput: document.getElementById('exportNameInput'),
   jsonEditor: document.getElementById('jsonEditor'),
   jsonStatus: document.getElementById('jsonStatus')
 };
@@ -136,12 +129,8 @@ const defaultLayer = () => ({
 });
 
 const setSpec = (updater) => {
-  const prevName = state.spec.name;
   const next = typeof updater === 'function' ? updater(state.spec) : updater;
   state.spec = normalizeSpec(next, state.spec);
-  if (!state.exportName || state.exportName === prevName) {
-    state.exportName = state.spec.name;
-  }
   render();
 };
 
@@ -435,6 +424,7 @@ const stopPlayback = () => {
     state.sourceNode = null;
   }
   state.isPlaying = false;
+  ui.playToggleBtn.textContent = 'Play';
 };
 
 const play = async () => {
@@ -457,12 +447,14 @@ const play = async () => {
     if (state.sourceNode === source) {
       state.sourceNode = null;
       state.isPlaying = false;
+      ui.playToggleBtn.textContent = 'Play';
     }
   };
   source.start();
 
   state.sourceNode = source;
   state.isPlaying = true;
+  ui.playToggleBtn.textContent = 'Stop';
 };
 
 const downloadWav = () => {
@@ -471,7 +463,7 @@ const downloadWav = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${(state.exportName || state.spec.name || 'sfx').trim() || 'sfx'}.wav`;
+  a.download = `${(state.spec.name || randomName()).trim() || randomName()}.wav`;
   a.click();
   URL.revokeObjectURL(url);
 };
@@ -481,6 +473,24 @@ const renderLayerList = () => {
   state.spec.layers.forEach((layer, idx) => {
     ui.layersContainer.appendChild(createLayerCard(layer, idx));
   });
+};
+
+const renderLayerDots = () => {
+  ui.layerDots.innerHTML = state.spec.layers
+    .map((_, idx) => `<button type="button" data-dot="${idx}" class="${idx === state.activeLayerDot ? 'active' : ''}" aria-label="Layer ${idx + 1}"></button>`)
+    .join('');
+};
+
+const updateActiveDotFromScroll = () => {
+  const card = ui.layersContainer.querySelector('.layer-card');
+  if (!card) return;
+  const width = card.getBoundingClientRect().width + 10;
+  const idx = Math.round(ui.layersContainer.scrollLeft / Math.max(1, width));
+  const next = clamp(idx, 0, Math.max(0, state.spec.layers.length - 1));
+  if (next !== state.activeLayerDot) {
+    state.activeLayerDot = next;
+    renderLayerDots();
+  }
 };
 
 const setPreviewMode = (mode) => {
@@ -497,9 +507,11 @@ const togglePreviewMode = () => {
 const render = () => {
   ui.durationInput.value = formatNum(state.spec.duration, 3);
   ui.durationSlider.value = formatNum(state.spec.duration, 3);
-  ui.exportNameInput.value = state.exportName || state.spec.name;
+  ui.playToggleBtn.textContent = state.isPlaying ? 'Stop' : 'Play';
   ui.layerCount.textContent = `${state.spec.layers.length} layer${state.spec.layers.length === 1 ? '' : 's'}`;
   renderLayerList();
+  state.activeLayerDot = clamp(state.activeLayerDot, 0, Math.max(0, state.spec.layers.length - 1));
+  renderLayerDots();
 
   const rendered = ensureRendered();
   renderWaveform(rendered);
@@ -513,14 +525,11 @@ ui.loadPresetBtn.addEventListener('click', () => {
   const picked = ui.presetSelect.value;
   state.selectedPreset = picked;
   const preset = cloneSpec(PRESETS[picked]);
-  state.exportName = preset.name;
   setSpec(preset);
 });
 
 ui.randomizeBtn.addEventListener('click', () => {
-  const spec = randomSpec();
-  state.exportName = spec.name;
-  setSpec(spec);
+  setSpec(randomSpec());
 });
 
 ui.durationInput.addEventListener('input', (event) => {
@@ -533,12 +542,25 @@ ui.durationSlider.addEventListener('input', (event) => {
   setSpec((spec) => ({ ...spec, duration: Number(value.toFixed(3)) }));
 });
 
-ui.exportNameInput.addEventListener('input', (event) => {
-  state.exportName = event.target.value;
-});
-
 ui.addLayerBtn.addEventListener('click', () => {
   setSpec((spec) => ({ ...spec, layers: [...spec.layers, defaultLayer()] }));
+});
+
+ui.layersContainer.addEventListener('scroll', () => {
+  updateActiveDotFromScroll();
+});
+
+ui.layerDots.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLButtonElement)) return;
+  const idx = Number(target.dataset.dot);
+  if (!Number.isInteger(idx)) return;
+  const card = ui.layersContainer.querySelector('.layer-card');
+  if (!card) return;
+  const width = card.getBoundingClientRect().width + 10;
+  ui.layersContainer.scrollTo({ left: idx * width, behavior: 'smooth' });
+  state.activeLayerDot = idx;
+  renderLayerDots();
 });
 
 ui.layersContainer.addEventListener('click', (event) => {
@@ -635,15 +657,15 @@ ui.layersContainer.addEventListener('input', (event) => {
   }
 });
 
-ui.playBtn.addEventListener('click', () => {
+ui.playToggleBtn.addEventListener('click', () => {
+  if (state.isPlaying) {
+    stopPlayback();
+    return;
+  }
   play();
 });
 
-ui.stopBtn.addEventListener('click', () => {
-  stopPlayback();
-});
-
-ui.downloadBtn.addEventListener('click', () => {
+ui.downloadInlineBtn.addEventListener('click', () => {
   downloadWav();
 });
 
