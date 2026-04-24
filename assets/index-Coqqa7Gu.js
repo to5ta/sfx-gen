@@ -43,9 +43,11 @@
         <button id="stopBtn" type="button">Stop</button>
         <button id="downloadBtn" type="button">WAV Download</button>
       </div>
-      <button id="canvasToggleHint" class="inline-hint" type="button">Click canvas to toggle view</button>
-      <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
-      <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
+      <div class="preview-stack">
+        <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
+        <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
+        <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
+      </div>
       <div class="row-buttons json-actions">
         <button id="applyJsonBtn" type="button">Apply JSON</button>
         <button id="copyJsonBtn" type="button">Copy JSON</button>
