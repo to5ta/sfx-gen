@@ -36,7 +36,10 @@ app.innerHTML = `
       </div>
       <div class="control-group">
         <label for="durationInput">Duration (s)</label>
-        <input id="durationInput" type="number" min="0.03" max="2.5" step="0.01" />
+        <div class="dual-input">
+          <input id="durationSlider" type="range" min="0.03" max="2.5" step="0.001" />
+          <input id="durationInput" type="number" min="0.03" max="2.5" step="0.01" />
+        </div>
       </div>
       <button id="addLayerBtn" type="button">Add Layer</button>
       <p class="hint">Single source of truth: one controlled <code>spec</code> object drives all widgets.</p>
@@ -72,6 +75,7 @@ const ui = {
   randomizeBtn: document.getElementById('randomizeBtn'),
   nameInput: document.getElementById('nameInput'),
   durationInput: document.getElementById('durationInput'),
+  durationSlider: document.getElementById('durationSlider'),
   addLayerBtn: document.getElementById('addLayerBtn'),
   layersContainer: document.getElementById('layersContainer'),
   layerCount: document.getElementById('layerCount'),
@@ -153,19 +157,31 @@ const createLayerCard = (layer, idx) => {
       </label>
 
       <label>Gain
-        <input data-key="gain" data-layer="${idx}" type="number" step="0.01" min="0" max="2" value="${formatNum(layer.gain, 2)}" />
+        <div class="dual-input">
+          <input data-key="gain" data-layer="${idx}" type="range" step="0.01" min="0" max="2" value="${formatNum(layer.gain, 2)}" />
+          <input data-key="gain" data-layer="${idx}" type="number" step="0.01" min="0" max="2" value="${formatNum(layer.gain, 2)}" />
+        </div>
       </label>
 
       <label>Attack (s)
-        <input data-key="attack" data-layer="${idx}" type="number" step="0.001" min="0.002" max="1" value="${formatNum(layer.attack)}" />
+        <div class="dual-input">
+          <input data-key="attack" data-layer="${idx}" type="range" step="0.001" min="0.002" max="1" value="${formatNum(layer.attack)}" />
+          <input data-key="attack" data-layer="${idx}" type="number" step="0.001" min="0.002" max="1" value="${formatNum(layer.attack)}" />
+        </div>
       </label>
 
       <label>Decay (s)
-        <input data-key="decay" data-layer="${idx}" type="number" step="0.001" min="0.002" max="2" value="${formatNum(layer.decay)}" />
+        <div class="dual-input">
+          <input data-key="decay" data-layer="${idx}" type="range" step="0.001" min="0.002" max="2" value="${formatNum(layer.decay)}" />
+          <input data-key="decay" data-layer="${idx}" type="number" step="0.001" min="0.002" max="2" value="${formatNum(layer.decay)}" />
+        </div>
       </label>
 
       <label>Offset (s)
-        <input data-key="offset" data-layer="${idx}" type="number" step="0.001" min="0" max="2" value="${formatNum(layer.offset)}" />
+        <div class="dual-input">
+          <input data-key="offset" data-layer="${idx}" type="range" step="0.001" min="0" max="2" value="${formatNum(layer.offset)}" />
+          <input data-key="offset" data-layer="${idx}" type="number" step="0.001" min="0" max="2" value="${formatNum(layer.offset)}" />
+        </div>
       </label>
 
       <label>Freq mode
@@ -431,6 +447,7 @@ const renderLayerList = () => {
 const render = () => {
   ui.nameInput.value = state.spec.name;
   ui.durationInput.value = formatNum(state.spec.duration, 3);
+  ui.durationSlider.value = formatNum(state.spec.duration, 3);
   ui.layerCount.textContent = `${state.spec.layers.length} layer${state.spec.layers.length === 1 ? '' : 's'}`;
   renderLayerList();
 
@@ -455,6 +472,11 @@ ui.nameInput.addEventListener('input', (event) => {
 });
 
 ui.durationInput.addEventListener('input', (event) => {
+  const value = clamp(Number(event.target.value) || 0.1, 0.03, 2.5);
+  setSpec((spec) => ({ ...spec, duration: Number(value.toFixed(3)) }));
+});
+
+ui.durationSlider.addEventListener('input', (event) => {
   const value = clamp(Number(event.target.value) || 0.1, 0.03, 2.5);
   setSpec((spec) => ({ ...spec, duration: Number(value.toFixed(3)) }));
 });
