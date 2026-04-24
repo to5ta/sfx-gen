@@ -4,11 +4,29 @@ import { SAMPLE_RATE, encodeWavPCM16, renderSpec } from './dsp.js';
 
 const DEFAULT_PRESET = 'click';
 const APP_SEMVER = '1.0.0';
+const CUSTOM_PRESET_KEY = 'ux-sfx-custom-presets-v1';
 const WAVE_TYPES = ['sine', 'square', 'saw', 'triangle', 'noise'];
 const FILTER_TYPES = ['lowpass', 'highpass'];
 
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
 const randomName = () => `sfx-${Math.random().toString(36).slice(2, 6)}`;
+const builtinValue = (name) => `builtin:${name}`;
+const customValue = (name) => `custom:${name}`;
+
+const loadCustomPresets = () => {
+  try {
+    const raw = localStorage.getItem(CUSTOM_PRESET_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const persistCustomPresets = (customPresets) => {
+  localStorage.setItem(CUSTOM_PRESET_KEY, JSON.stringify(customPresets));
+};
 
 const normalizeSpec = (spec, fallback = null) => {
   const base = deepClone(spec);
@@ -29,7 +47,8 @@ const normalizeSpec = (spec, fallback = null) => {
 
 const state = {
   spec: normalizeSpec(cloneSpec(PRESETS[DEFAULT_PRESET])),
-  selectedPreset: DEFAULT_PRESET,
+  selectedPreset: builtinValue(DEFAULT_PRESET),
+  customPresets: loadCustomPresets(),
   previewMode: 'wave',
   activeLayerDot: 0,
   rendered: null,
@@ -50,6 +69,8 @@ app.innerHTML = `
       <div class="preset-row">
         <select id="presetSelect" class="compact-select" aria-label="Preset"></select>
         <button id="loadPresetBtn" type="button">Load</button>
+        <button id="savePresetBtn" type="button">Save</button>
+        <button id="removePresetBtn" type="button">Rm</button>
         <button id="randomizeBtn" type="button" title="Randomize">&#x1F3B2;</button>
       </div>
       <div class="duration-row">
@@ -65,12 +86,10 @@ app.innerHTML = `
       <div class="section-head">
         <h2>Preview</h2>
       </div>
-      <div class="row-buttons">
-        <button id="playToggleBtn" type="button">Play</button>
-      </div>
       <div class="preview-stack">
         <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
+        <button id="playToggleBtn" class="inline-hint inline-play" type="button">play</button>
         <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
         <button id="downloadInlineBtn" class="inline-hint inline-download" type="button">download wav</button>
       </div>
@@ -99,6 +118,8 @@ app.innerHTML = `
 const ui = {
   presetSelect: document.getElementById('presetSelect'),
   loadPresetBtn: document.getElementById('loadPresetBtn'),
+  savePresetBtn: document.getElementById('savePresetBtn'),
+  removePresetBtn: document.getElementById('removePresetBtn'),
   randomizeBtn: document.getElementById('randomizeBtn'),
   durationInput: document.getElementById('durationInput'),
   durationSlider: document.getElementById('durationSlider'),
@@ -155,10 +176,22 @@ const updateLayerField = (index, key, value) => {
 };
 
 const populatePresetSelect = () => {
-  ui.presetSelect.innerHTML = Object.keys(PRESETS)
-    .map((name) => `<option value="${name}">${name}</option>`)
+  const builtinOptions = Object.keys(PRESETS)
+    .map((name) => `<option value="${builtinValue(name)}">${name}</option>`)
     .join('');
+
+  const customNames = Object.keys(state.customPresets).sort();
+  const customOptions = customNames
+    .map((name) => `<option value="${customValue(name)}">${name}</option>`)
+    .join('');
+
+  ui.presetSelect.innerHTML = `
+    <optgroup label="Built-in">${builtinOptions}</optgroup>
+    ${customOptions ? `<optgroup label="Custom">${customOptions}</optgroup>` : ''}
+  `;
+
   ui.presetSelect.value = state.selectedPreset;
+  ui.presetSelect.classList.toggle('builtin-selected', state.selectedPreset.startsWith('builtin:'));
 };
 
 const createLayerCard = (layer, idx) => {
@@ -524,12 +557,55 @@ const render = () => {
 ui.loadPresetBtn.addEventListener('click', () => {
   const picked = ui.presetSelect.value;
   state.selectedPreset = picked;
-  const preset = cloneSpec(PRESETS[picked]);
-  setSpec(preset);
+
+  if (picked.startsWith('builtin:')) {
+    const name = picked.replace('builtin:', '');
+    setSpec(cloneSpec(PRESETS[name]));
+    populatePresetSelect();
+    return;
+  }
+
+  const name = picked.replace('custom:', '');
+  const custom = state.customPresets[name];
+  if (custom) {
+    setSpec(deepClone(custom));
+    populatePresetSelect();
+  }
+});
+
+ui.savePresetBtn.addEventListener('click', () => {
+  const name = (state.spec.name || randomName()).trim() || randomName();
+  state.spec.name = name;
+  state.customPresets[name] = deepClone(state.spec);
+  persistCustomPresets(state.customPresets);
+  state.selectedPreset = customValue(name);
+  ui.jsonStatus.textContent = `Saved preset: ${name}`;
+  populatePresetSelect();
+});
+
+ui.removePresetBtn.addEventListener('click', () => {
+  if (!state.selectedPreset.startsWith('custom:')) {
+    ui.jsonStatus.textContent = 'Built-in presets cannot be removed.';
+    return;
+  }
+  const name = state.selectedPreset.replace('custom:', '');
+  delete state.customPresets[name];
+  persistCustomPresets(state.customPresets);
+  state.selectedPreset = builtinValue(DEFAULT_PRESET);
+  ui.presetSelect.value = state.selectedPreset;
+  ui.jsonStatus.textContent = `Removed preset: ${name}`;
+  populatePresetSelect();
+});
+
+ui.presetSelect.addEventListener('change', (event) => {
+  state.selectedPreset = event.target.value;
+  ui.presetSelect.classList.toggle('builtin-selected', state.selectedPreset.startsWith('builtin:'));
 });
 
 ui.randomizeBtn.addEventListener('click', () => {
   setSpec(randomSpec());
+  state.selectedPreset = builtinValue(DEFAULT_PRESET);
+  populatePresetSelect();
 });
 
 ui.durationInput.addEventListener('input', (event) => {

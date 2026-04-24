@@ -138,9 +138,18 @@ label {
 
 .preset-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 62px 62px;
+  grid-template-columns: minmax(0, 1fr) 52px 52px 44px 36px;
   gap: 6px;
   align-items: center;
+}
+
+.preset-row button {
+  min-height: 28px;
+  padding: 4px;
+}
+
+.compact-select.builtin-selected {
+  color: rgba(31, 26, 24, 0.65);
 }
 
 .duration-row {
@@ -323,11 +332,19 @@ button:hover {
 
 .inline-download {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: auto;
+  left: auto;
+  right: 10px;
+  bottom: 10px;
   width: auto;
   color: #f6f2e5;
   border-color: rgba(255, 255, 255, 0.35);
+}
+
+.inline-play {
+  top: auto;
+  left: 10px;
+  bottom: 10px;
 }
 
 .json-actions {
