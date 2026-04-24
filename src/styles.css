@@ -130,6 +130,37 @@ label {
   max-width: 180px;
 }
 
+.settings-compact {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.settings-compact .control-group {
+  gap: 4px;
+  font-size: 0.68rem;
+}
+
+.settings-compact .dual-input {
+  grid-template-columns: minmax(0, 1fr) 72px;
+}
+
+.settings-compact input,
+.settings-compact select,
+.settings-compact button {
+  padding: 6px 8px;
+}
+
+.settings-compact .column-buttons {
+  margin-bottom: 2px;
+}
+
+.settings-compact .hint {
+  margin-top: 2px;
+  margin-bottom: 0;
+  font-size: 0.66rem;
+}
+
 input,
 select,
 button,
