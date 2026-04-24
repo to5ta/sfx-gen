@@ -1,0 +1,232 @@
+:root {
+  --bg: #f0eadf;
+  --panel: rgba(255, 255, 255, 0.74);
+  --ink: #1f1a18;
+  --accent: #da4a2f;
+  --accent-2: #0f7b7f;
+  --line: rgba(31, 26, 24, 0.25);
+  --shadow: 0 18px 45px rgba(37, 20, 8, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--ink);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 10%, #fff2b7 0%, rgba(255, 242, 183, 0) 45%),
+    radial-gradient(circle at 90% 20%, #ffb28f 0%, rgba(255, 178, 143, 0) 40%),
+    linear-gradient(130deg, #ece3d2 0%, #e6d0b2 44%, #dec5ab 100%);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: repeating-linear-gradient(0deg, rgba(31, 26, 24, 0.045), rgba(31, 26, 24, 0.045) 1px, transparent 1px, transparent 4px);
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 280px minmax(350px, 1fr) minmax(360px, 1fr);
+  gap: 14px;
+  padding: 18px;
+  max-width: 1700px;
+  margin: 0 auto;
+}
+
+.panel {
+  backdrop-filter: blur(8px);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  border-radius: 18px;
+  padding: 14px;
+  animation: rise 500ms ease both;
+}
+
+.panel:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.panel:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+h1,
+h2 {
+  font-family: 'Syne', sans-serif;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+h1 {
+  font-size: 1.8rem;
+  line-height: 1.04;
+}
+
+h2 {
+  font-size: 1.1rem;
+}
+
+.tagline {
+  margin-top: 6px;
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  color: rgba(31, 26, 24, 0.72);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.control-group,
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+button {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--ink);
+}
+
+button {
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 14px rgba(31, 26, 24, 0.12);
+}
+
+.row-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.panel-sidebar .row-buttons {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hint {
+  margin-top: 12px;
+  font-size: 0.72rem;
+  opacity: 0.78;
+}
+
+.panel-layers {
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+}
+
+.layer-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.layer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.layer-head .row-buttons {
+  margin: 0;
+  width: 180px;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.meta-pill {
+  justify-content: center;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.73rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.panel-preview canvas {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 10px;
+}
+
+#jsonView {
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 10px;
+  max-height: 260px;
+  overflow: auto;
+  background: rgba(15, 19, 27, 0.94);
+  color: #d3fce8;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1200px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-layers {
+    max-height: none;
+  }
+}
