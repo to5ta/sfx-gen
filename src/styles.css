@@ -270,7 +270,12 @@ button:hover {
 
 .layer-head .row-buttons {
   margin: 0;
-  width: 180px;
+  width: auto;
+  grid-template-columns: repeat(2, minmax(96px, 1fr));
+}
+
+.layer-head .row-buttons button {
+  min-height: 34px;
 }
 
 .grid-two {
@@ -317,12 +322,12 @@ button:hover {
 }
 
 .inline-download {
-  position: static;
-  margin-top: 4px;
-  margin-bottom: 8px;
-  width: 100%;
-  color: rgba(31, 26, 24, 0.85);
-  border-color: rgba(31, 26, 24, 0.25);
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: auto;
+  color: #f6f2e5;
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .json-actions {

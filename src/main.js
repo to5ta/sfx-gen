@@ -50,7 +50,7 @@ app.innerHTML = `
       <div class="preset-row">
         <select id="presetSelect" class="compact-select" aria-label="Preset"></select>
         <button id="loadPresetBtn" type="button">Load</button>
-        <button id="randomizeBtn" type="button">Rand</button>
+        <button id="randomizeBtn" type="button" title="Randomize">&#x1F3B2;</button>
       </div>
       <div class="duration-row">
         <label for="durationInput">Duration</label>
@@ -72,8 +72,8 @@ app.innerHTML = `
         <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
+        <button id="downloadInlineBtn" class="inline-hint inline-download" type="button">download wav</button>
       </div>
-      <button id="downloadInlineBtn" class="inline-hint inline-download" type="button">download wav</button>
       <div class="row-buttons json-actions">
         <button id="applyJsonBtn" type="button">Apply JSON</button>
         <button id="copyJsonBtn" type="button">Copy JSON</button>
