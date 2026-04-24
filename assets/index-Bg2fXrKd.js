@@ -9,7 +9,7 @@
         <select id="presetSelect" class="compact-select" aria-label="Preset"></select>
         <button id="loadPresetBtn" type="button">Load</button>
         <button id="savePresetBtn" type="button">Save</button>
-        <button id="removePresetBtn" type="button">Rm</button>
+        <button id="removePresetBtn" type="button">Remove</button>
         <button id="randomizeBtn" type="button" title="Randomize">&#x1F3B2;</button>
       </div>
       <div class="duration-row">
