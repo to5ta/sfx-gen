@@ -241,6 +241,21 @@ button:hover {
 }
 
 @media (max-width: 640px) {
+  #layersContainer {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(88vw, 1fr);
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .layer-card {
+    margin-bottom: 0;
+    scroll-snap-align: start;
+  }
+
   .row-buttons {
     grid-template-columns: 1fr;
   }
