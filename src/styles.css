@@ -217,6 +217,7 @@ button:hover {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 #jsonView {
@@ -254,6 +255,23 @@ button:hover {
 }
 
 @media (max-width: 640px) {
+  .panel-sidebar {
+    order: 1;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: -8px;
+  }
+
+  .panel-preview {
+    order: 2;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .panel-layers {
+    order: 3;
+  }
+
   #layersContainer {
     display: grid;
     grid-auto-flow: column;

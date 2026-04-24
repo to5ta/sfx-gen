@@ -9,6 +9,7 @@ const FILTER_TYPES = ['lowpass', 'highpass'];
 const state = {
   spec: cloneSpec(PRESETS[DEFAULT_PRESET]),
   selectedPreset: DEFAULT_PRESET,
+  previewMode: 'wave',
   rendered: null,
   audioContext: null,
   sourceNode: null,
@@ -56,14 +57,15 @@ app.innerHTML = `
     <section class="panel panel-preview">
       <div class="section-head">
         <h2>Preview</h2>
+        <button id="toggleViewBtn" type="button">Show Spectrogram</button>
       </div>
       <div class="row-buttons">
         <button id="playBtn" type="button">Play</button>
         <button id="stopBtn" type="button">Stop</button>
         <button id="downloadBtn" type="button">WAV Download</button>
       </div>
-      <canvas id="waveCanvas" width="760" height="160"></canvas>
-      <canvas id="specCanvas" width="760" height="220"></canvas>
+      <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
+      <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
       <pre id="jsonView"></pre>
     </section>
   </main>
@@ -82,6 +84,7 @@ const ui = {
   playBtn: document.getElementById('playBtn'),
   stopBtn: document.getElementById('stopBtn'),
   downloadBtn: document.getElementById('downloadBtn'),
+  toggleViewBtn: document.getElementById('toggleViewBtn'),
   waveCanvas: document.getElementById('waveCanvas'),
   specCanvas: document.getElementById('specCanvas'),
   jsonView: document.getElementById('jsonView')
@@ -444,6 +447,18 @@ const renderLayerList = () => {
   });
 };
 
+const setPreviewMode = (mode) => {
+  state.previewMode = mode;
+  const showingWave = mode === 'wave';
+  ui.waveCanvas.style.display = showingWave ? 'block' : 'none';
+  ui.specCanvas.style.display = showingWave ? 'none' : 'block';
+  ui.toggleViewBtn.textContent = showingWave ? 'Show Spectrogram' : 'Show Curve';
+};
+
+const togglePreviewMode = () => {
+  setPreviewMode(state.previewMode === 'wave' ? 'spec' : 'wave');
+};
+
 const render = () => {
   ui.nameInput.value = state.spec.name;
   ui.durationInput.value = formatNum(state.spec.duration, 3);
@@ -454,6 +469,7 @@ const render = () => {
   const rendered = ensureRendered();
   renderWaveform(rendered);
   renderSpectrogram(rendered);
+  setPreviewMode(state.previewMode);
   ui.jsonView.textContent = JSON.stringify(state.spec, null, 2);
 };
 
@@ -589,6 +605,18 @@ ui.stopBtn.addEventListener('click', () => {
 
 ui.downloadBtn.addEventListener('click', () => {
   downloadWav();
+});
+
+ui.toggleViewBtn.addEventListener('click', () => {
+  togglePreviewMode();
+});
+
+ui.waveCanvas.addEventListener('click', () => {
+  togglePreviewMode();
+});
+
+ui.specCanvas.addEventListener('click', () => {
+  togglePreviewMode();
 });
 
 populatePresetSelect();
