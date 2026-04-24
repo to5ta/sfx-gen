@@ -220,12 +220,22 @@ button:hover {
   cursor: pointer;
 }
 
+.preview-stack {
+  position: relative;
+}
+
 .inline-hint {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   background: transparent;
-  border-color: rgba(31, 26, 24, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
   box-shadow: none;
-  opacity: 0.75;
-  margin-bottom: 8px;
+  color: #f6f2e5;
+  opacity: 0.86;
+  min-height: auto;
+  padding: 6px 8px;
+  z-index: 2;
 }
 
 .json-actions {
