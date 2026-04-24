@@ -132,13 +132,13 @@ label {
 
 .settings-compact {
   display: grid;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 3px;
+  margin-bottom: 6px;
 }
 
 .settings-compact .control-group {
-  gap: 4px;
-  font-size: 0.68rem;
+  gap: 2px;
+  font-size: 0.62rem;
 }
 
 .settings-compact .dual-input {
@@ -148,17 +148,21 @@ label {
 .settings-compact input,
 .settings-compact select,
 .settings-compact button {
-  padding: 6px 8px;
+  padding: 4px 6px;
 }
 
 .settings-compact .column-buttons {
-  margin-bottom: 2px;
+  margin-bottom: 0;
+}
+
+.settings-compact .column-buttons button {
+  min-height: 30px;
 }
 
 .settings-compact .hint {
-  margin-top: 2px;
+  margin-top: 0;
   margin-bottom: 0;
-  font-size: 0.66rem;
+  font-size: 0.6rem;
 }
 
 input,
