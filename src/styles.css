@@ -354,6 +354,16 @@ button:hover {
   padding: 5px 8px;
 }
 
+.overlay-mini {
+  min-width: 28px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .json-actions {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

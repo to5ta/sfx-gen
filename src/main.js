@@ -89,9 +89,9 @@ app.innerHTML = `
       <div class="preview-stack">
         <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
-        <button id="playToggleBtn" class="inline-hint inline-play" type="button" title="Play/Stop">&#9654;</button>
+        <button id="playToggleBtn" class="inline-hint inline-play overlay-mini" type="button" title="Play/Stop">&#9654;</button>
         <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
-        <button id="downloadInlineBtn" class="inline-hint inline-download" type="button" title="Download WAV">wav</button>
+        <button id="downloadInlineBtn" class="inline-hint inline-download overlay-mini" type="button" title="Download WAV">&#11015;</button>
       </div>
       <div class="row-buttons json-actions">
         <button id="applyJsonBtn" type="button">Apply JSON</button>
