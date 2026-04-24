@@ -138,7 +138,7 @@ label {
 
 .preset-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 52px 52px 44px 36px;
+  grid-template-columns: minmax(0, 1fr) 52px 56px 78px 36px;
   gap: 6px;
   align-items: center;
 }
@@ -332,10 +332,10 @@ button:hover {
 
 .inline-download {
   position: absolute;
-  top: auto;
+  top: 44px;
   left: auto;
   right: 10px;
-  bottom: 10px;
+  bottom: auto;
   width: auto;
   color: #f6f2e5;
   border-color: rgba(255, 255, 255, 0.35);
