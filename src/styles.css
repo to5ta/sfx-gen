@@ -36,10 +36,10 @@ body::before {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 280px minmax(350px, 1fr) minmax(360px, 1fr);
+  grid-template-columns: 420px minmax(420px, 1fr);
   gap: 14px;
   padding: 18px;
-  max-width: 1700px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 
@@ -211,7 +211,7 @@ button:hover {
   letter-spacing: normal;
 }
 
-.panel-preview canvas {
+.preview-canvas {
   width: 100%;
   display: block;
   border-radius: 12px;
@@ -280,19 +280,10 @@ button:hover {
 @media (max-width: 640px) {
   .panel-sidebar {
     order: 1;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    margin-bottom: -8px;
-  }
-
-  .panel-preview {
-    order: 2;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
   }
 
   .panel-layers {
-    order: 3;
+    order: 2;
   }
 
   #layersContainer {

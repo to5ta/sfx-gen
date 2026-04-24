@@ -44,17 +44,7 @@ app.innerHTML = `
       </div>
       <button id="addLayerBtn" type="button">Add Layer</button>
       <p class="hint">Single source of truth: one controlled <code>spec</code> object drives all widgets.</p>
-    </section>
 
-    <section class="panel panel-layers">
-      <div class="section-head">
-        <h2>Layers</h2>
-        <span id="layerCount"></span>
-      </div>
-      <div id="layersContainer"></div>
-    </section>
-
-    <section class="panel panel-preview">
       <div class="section-head">
         <h2>Preview</h2>
       </div>
@@ -74,6 +64,14 @@ app.innerHTML = `
       </div>
       <textarea id="jsonEditor" spellcheck="false"></textarea>
       <p id="jsonStatus" class="hint"></p>
+    </section>
+
+    <section class="panel panel-layers">
+      <div class="section-head">
+        <h2>Layers</h2>
+        <span id="layerCount"></span>
+      </div>
+      <div id="layersContainer"></div>
     </section>
   </main>
 `;
