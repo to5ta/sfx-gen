@@ -3,13 +3,34 @@ import { PRESETS, cloneSpec, randomSpec } from './presets.js';
 import { SAMPLE_RATE, encodeWavPCM16, renderSpec } from './dsp.js';
 
 const DEFAULT_PRESET = 'click';
+const APP_SEMVER = '1.0.0';
 const WAVE_TYPES = ['sine', 'square', 'saw', 'triangle', 'noise'];
 const FILTER_TYPES = ['lowpass', 'highpass'];
 
+const deepClone = (value) => JSON.parse(JSON.stringify(value));
+
+const normalizeSpec = (spec, fallback = null) => {
+  const base = deepClone(spec);
+  const createdAt =
+    (typeof base.createdAt === 'string' && base.createdAt) ||
+    (fallback && typeof fallback.createdAt === 'string' && fallback.createdAt) ||
+    new Date().toISOString();
+
+  return {
+    ...base,
+    name: typeof base.name === 'string' ? base.name : 'sfx',
+    duration: Number.isFinite(base.duration) ? base.duration : 0.2,
+    layers: Array.isArray(base.layers) ? base.layers : [],
+    createdAt,
+    version: APP_SEMVER
+  };
+};
+
 const state = {
-  spec: cloneSpec(PRESETS[DEFAULT_PRESET]),
+  spec: normalizeSpec(cloneSpec(PRESETS[DEFAULT_PRESET])),
   selectedPreset: DEFAULT_PRESET,
   previewMode: 'wave',
+  exportName: cloneSpec(PRESETS[DEFAULT_PRESET]).name,
   rendered: null,
   audioContext: null,
   sourceNode: null,
@@ -23,17 +44,14 @@ app.innerHTML = `
     <section class="panel panel-sidebar">
       <h1>UX SFX Generator</h1>
       <p class="tagline">Browser additive synth for UI sonification</p>
+      <p class="app-version">v${APP_SEMVER}</p>
       <div class="control-group">
         <label for="presetSelect">Preset</label>
-        <select id="presetSelect"></select>
+        <select id="presetSelect" class="compact-select"></select>
       </div>
-      <div class="row-buttons">
+      <div class="column-buttons">
         <button id="loadPresetBtn" type="button">Load</button>
         <button id="randomizeBtn" type="button">Randomize</button>
-      </div>
-      <div class="control-group">
-        <label for="nameInput">Name</label>
-        <input id="nameInput" type="text" />
       </div>
       <div class="control-group">
         <label for="durationInput">Duration (s)</label>
@@ -42,7 +60,6 @@ app.innerHTML = `
           <input id="durationInput" type="number" min="0.03" max="2.5" step="0.01" />
         </div>
       </div>
-      <button id="addLayerBtn" type="button">Add Layer</button>
       <p class="hint">Single source of truth: one controlled <code>spec</code> object drives all widgets.</p>
 
       <div class="section-head">
@@ -51,7 +68,6 @@ app.innerHTML = `
       <div class="row-buttons">
         <button id="playBtn" type="button">Play</button>
         <button id="stopBtn" type="button">Stop</button>
-        <button id="downloadBtn" type="button">WAV Download</button>
       </div>
       <div class="preview-stack">
         <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
@@ -62,6 +78,11 @@ app.innerHTML = `
         <button id="applyJsonBtn" type="button">Apply JSON</button>
         <button id="copyJsonBtn" type="button">Copy JSON</button>
       </div>
+      <div class="export-row">
+        <label for="exportNameInput">Export Name</label>
+        <input id="exportNameInput" type="text" placeholder="sfx" />
+        <button id="downloadBtn" type="button">WAV Download</button>
+      </div>
       <textarea id="jsonEditor" spellcheck="false"></textarea>
       <p id="jsonStatus" class="hint"></p>
     </section>
@@ -69,7 +90,10 @@ app.innerHTML = `
     <section class="panel panel-layers">
       <div class="section-head">
         <h2>Layers</h2>
-        <span id="layerCount"></span>
+        <div class="section-head-actions">
+          <span id="layerCount"></span>
+          <button id="addLayerBtn" type="button">Add Layer</button>
+        </div>
       </div>
       <div id="layersContainer"></div>
     </section>
@@ -80,7 +104,6 @@ const ui = {
   presetSelect: document.getElementById('presetSelect'),
   loadPresetBtn: document.getElementById('loadPresetBtn'),
   randomizeBtn: document.getElementById('randomizeBtn'),
-  nameInput: document.getElementById('nameInput'),
   durationInput: document.getElementById('durationInput'),
   durationSlider: document.getElementById('durationSlider'),
   addLayerBtn: document.getElementById('addLayerBtn'),
@@ -94,11 +117,10 @@ const ui = {
   specCanvas: document.getElementById('specCanvas'),
   applyJsonBtn: document.getElementById('applyJsonBtn'),
   copyJsonBtn: document.getElementById('copyJsonBtn'),
+  exportNameInput: document.getElementById('exportNameInput'),
   jsonEditor: document.getElementById('jsonEditor'),
   jsonStatus: document.getElementById('jsonStatus')
 };
-
-const deepClone = (value) => JSON.parse(JSON.stringify(value));
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const defaultLayer = () => ({
@@ -112,8 +134,12 @@ const defaultLayer = () => ({
 });
 
 const setSpec = (updater) => {
+  const prevName = state.spec.name;
   const next = typeof updater === 'function' ? updater(state.spec) : updater;
-  state.spec = deepClone(next);
+  state.spec = normalizeSpec(next, state.spec);
+  if (!state.exportName || state.exportName === prevName) {
+    state.exportName = state.spec.name;
+  }
   render();
 };
 
@@ -443,7 +469,7 @@ const downloadWav = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${state.spec.name || 'sfx'}.wav`;
+  a.download = `${(state.exportName || state.spec.name || 'sfx').trim() || 'sfx'}.wav`;
   a.click();
   URL.revokeObjectURL(url);
 };
@@ -467,9 +493,9 @@ const togglePreviewMode = () => {
 };
 
 const render = () => {
-  ui.nameInput.value = state.spec.name;
   ui.durationInput.value = formatNum(state.spec.duration, 3);
   ui.durationSlider.value = formatNum(state.spec.duration, 3);
+  ui.exportNameInput.value = state.exportName || state.spec.name;
   ui.layerCount.textContent = `${state.spec.layers.length} layer${state.spec.layers.length === 1 ? '' : 's'}`;
   renderLayerList();
 
@@ -484,15 +510,15 @@ const render = () => {
 ui.loadPresetBtn.addEventListener('click', () => {
   const picked = ui.presetSelect.value;
   state.selectedPreset = picked;
-  setSpec(cloneSpec(PRESETS[picked]));
+  const preset = cloneSpec(PRESETS[picked]);
+  state.exportName = preset.name;
+  setSpec(preset);
 });
 
 ui.randomizeBtn.addEventListener('click', () => {
-  setSpec(randomSpec());
-});
-
-ui.nameInput.addEventListener('input', (event) => {
-  setSpec((spec) => ({ ...spec, name: event.target.value }));
+  const spec = randomSpec();
+  state.exportName = spec.name;
+  setSpec(spec);
 });
 
 ui.durationInput.addEventListener('input', (event) => {
@@ -503,6 +529,10 @@ ui.durationInput.addEventListener('input', (event) => {
 ui.durationSlider.addEventListener('input', (event) => {
   const value = clamp(Number(event.target.value) || 0.1, 0.03, 2.5);
   setSpec((spec) => ({ ...spec, duration: Number(value.toFixed(3)) }));
+});
+
+ui.exportNameInput.addEventListener('input', (event) => {
+  state.exportName = event.target.value;
 });
 
 ui.addLayerBtn.addEventListener('click', () => {

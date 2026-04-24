@@ -84,11 +84,23 @@ h2 {
   color: rgba(31, 26, 24, 0.72);
 }
 
+.app-version {
+  margin: -8px 0 10px;
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
 .section-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 10px;
+}
+
+.section-head-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .control-group,
@@ -112,6 +124,10 @@ label {
   accent-color: var(--accent-2);
   padding: 0;
   height: 30px;
+}
+
+.compact-select {
+  max-width: 180px;
 }
 
 input,
@@ -151,6 +167,13 @@ button:hover {
 .row-buttons {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.column-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 8px;
   margin-bottom: 10px;
 }
@@ -242,6 +265,26 @@ button:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.export-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+
+.export-row label {
+  font-size: 0.72rem;
+}
+
+.export-row input {
+  grid-column: 1 / 2;
+}
+
+.export-row button {
+  grid-column: 2 / 3;
+}
+
 #jsonEditor {
   margin: 0;
   width: 100%;
@@ -305,8 +348,20 @@ button:hover {
     grid-template-columns: 1fr;
   }
 
+  .json-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .panel-sidebar .row-buttons {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .export-row {
+    grid-template-columns: 1fr;
+  }
+
+  .export-row button {
+    grid-column: 1 / 2;
   }
 
   .layer-head .row-buttons {
