@@ -220,17 +220,30 @@ button:hover {
   cursor: pointer;
 }
 
-#jsonView {
+.inline-hint {
+  background: transparent;
+  border-color: rgba(31, 26, 24, 0.2);
+  box-shadow: none;
+  opacity: 0.75;
+  margin-bottom: 8px;
+}
+
+.json-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#jsonEditor {
   margin: 0;
+  width: 100%;
+  min-height: 260px;
   border-radius: 12px;
   border: 1px solid var(--line);
   padding: 10px;
-  max-height: 260px;
-  overflow: auto;
   background: rgba(15, 19, 27, 0.94);
   color: #d3fce8;
   font-size: 0.74rem;
   line-height: 1.45;
+  resize: vertical;
 }
 
 @keyframes rise {

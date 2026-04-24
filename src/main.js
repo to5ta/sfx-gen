@@ -57,16 +57,21 @@ app.innerHTML = `
     <section class="panel panel-preview">
       <div class="section-head">
         <h2>Preview</h2>
-        <button id="toggleViewBtn" type="button">Show Spectrogram</button>
       </div>
       <div class="row-buttons">
         <button id="playBtn" type="button">Play</button>
         <button id="stopBtn" type="button">Stop</button>
         <button id="downloadBtn" type="button">WAV Download</button>
       </div>
+      <button id="canvasToggleHint" class="inline-hint" type="button">Click canvas to toggle view</button>
       <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
       <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
-      <pre id="jsonView"></pre>
+      <div class="row-buttons json-actions">
+        <button id="applyJsonBtn" type="button">Apply JSON</button>
+        <button id="copyJsonBtn" type="button">Copy JSON</button>
+      </div>
+      <textarea id="jsonEditor" spellcheck="false"></textarea>
+      <p id="jsonStatus" class="hint"></p>
     </section>
   </main>
 `;
@@ -84,10 +89,13 @@ const ui = {
   playBtn: document.getElementById('playBtn'),
   stopBtn: document.getElementById('stopBtn'),
   downloadBtn: document.getElementById('downloadBtn'),
-  toggleViewBtn: document.getElementById('toggleViewBtn'),
+  canvasToggleHint: document.getElementById('canvasToggleHint'),
   waveCanvas: document.getElementById('waveCanvas'),
   specCanvas: document.getElementById('specCanvas'),
-  jsonView: document.getElementById('jsonView')
+  applyJsonBtn: document.getElementById('applyJsonBtn'),
+  copyJsonBtn: document.getElementById('copyJsonBtn'),
+  jsonEditor: document.getElementById('jsonEditor'),
+  jsonStatus: document.getElementById('jsonStatus')
 };
 
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
@@ -452,7 +460,6 @@ const setPreviewMode = (mode) => {
   const showingWave = mode === 'wave';
   ui.waveCanvas.style.display = showingWave ? 'block' : 'none';
   ui.specCanvas.style.display = showingWave ? 'none' : 'block';
-  ui.toggleViewBtn.textContent = showingWave ? 'Show Spectrogram' : 'Show Curve';
 };
 
 const togglePreviewMode = () => {
@@ -470,7 +477,8 @@ const render = () => {
   renderWaveform(rendered);
   renderSpectrogram(rendered);
   setPreviewMode(state.previewMode);
-  ui.jsonView.textContent = JSON.stringify(state.spec, null, 2);
+  ui.jsonEditor.value = JSON.stringify(state.spec, null, 2);
+  ui.jsonStatus.textContent = '';
 };
 
 ui.loadPresetBtn.addEventListener('click', () => {
@@ -607,7 +615,7 @@ ui.downloadBtn.addEventListener('click', () => {
   downloadWav();
 });
 
-ui.toggleViewBtn.addEventListener('click', () => {
+ui.canvasToggleHint.addEventListener('click', () => {
   togglePreviewMode();
 });
 
@@ -617,6 +625,28 @@ ui.waveCanvas.addEventListener('click', () => {
 
 ui.specCanvas.addEventListener('click', () => {
   togglePreviewMode();
+});
+
+ui.copyJsonBtn.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(ui.jsonEditor.value);
+    ui.jsonStatus.textContent = 'JSON copied to clipboard.';
+  } catch {
+    ui.jsonStatus.textContent = 'Clipboard copy failed.';
+  }
+});
+
+ui.applyJsonBtn.addEventListener('click', () => {
+  try {
+    const parsed = JSON.parse(ui.jsonEditor.value);
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.layers)) {
+      throw new Error('Invalid spec shape');
+    }
+    setSpec(parsed);
+    ui.jsonStatus.textContent = 'Spec applied.';
+  } catch {
+    ui.jsonStatus.textContent = 'Invalid JSON. Expected a Spec object.';
+  }
 });
 
 populatePresetSelect();
