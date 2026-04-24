@@ -123,6 +123,10 @@ button {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  font-size: clamp(0.64rem, 0.6rem + 0.25vw, 0.78rem);
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
   transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
@@ -136,6 +140,11 @@ button:hover {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 10px;
+}
+
+.row-buttons button {
+  min-height: 40px;
+  padding: 8px 6px;
 }
 
 .panel-sidebar .row-buttons {
@@ -228,5 +237,19 @@ button:hover {
 
   .panel-layers {
     max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .row-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-sidebar .row-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .layer-head .row-buttons {
+    width: 100%;
   }
 }
