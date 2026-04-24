@@ -5,6 +5,7 @@ import { SAMPLE_RATE, encodeWavPCM16, renderSpec } from './dsp.js';
 const DEFAULT_PRESET = 'click';
 const APP_SEMVER = '1.0.0';
 const CUSTOM_PRESET_KEY = 'ux-sfx-custom-presets-v1';
+const SUPPORTED_LANGS = ['en', 'de', 'fr', 'it', 'es'];
 const WAVE_TYPES = ['sine', 'square', 'saw', 'triangle', 'noise'];
 const FILTER_TYPES = ['lowpass', 'highpass'];
 
@@ -23,6 +24,23 @@ const loadCustomPresets = () => {
     return {};
   }
 };
+
+const getPathLang = () => {
+  const seg = window.location.pathname.split('/').filter(Boolean)[0]?.toLowerCase();
+  return SUPPORTED_LANGS.includes(seg) ? seg : null;
+};
+
+const getQueryLang = () => {
+  const query = new URLSearchParams(window.location.search).get('lang')?.toLowerCase();
+  return SUPPORTED_LANGS.includes(query) ? query : null;
+};
+
+const getBrowserLang = () => {
+  const code = (navigator.language || 'en').slice(0, 2).toLowerCase();
+  return SUPPORTED_LANGS.includes(code) ? code : 'en';
+};
+
+const resolveLang = () => getPathLang() || getQueryLang() || getBrowserLang();
 
 const persistCustomPresets = (customPresets) => {
   localStorage.setItem(CUSTOM_PRESET_KEY, JSON.stringify(customPresets));
@@ -49,6 +67,7 @@ const state = {
   spec: normalizeSpec(cloneSpec(PRESETS[DEFAULT_PRESET])),
   selectedPreset: builtinValue(DEFAULT_PRESET),
   customPresets: loadCustomPresets(),
+  lang: resolveLang(),
   previewMode: 'wave',
   activeLayerDot: 0,
   rendered: null,
@@ -58,6 +77,7 @@ const state = {
 };
 
 const app = document.querySelector('#app');
+document.documentElement.lang = state.lang;
 
 app.innerHTML = `
   <main class="shell">
@@ -91,7 +111,7 @@ app.innerHTML = `
         <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <button id="playToggleBtn" class="inline-hint inline-play overlay-mini" type="button" title="Play/Stop">&#9654;</button>
         <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
-        <button id="downloadInlineBtn" class="inline-hint inline-download overlay-mini" type="button" title="Download WAV">&#11015;</button>
+        <button id="downloadInlineBtn" class="inline-hint inline-download overlay-mini" type="button" title="Download WAV">&#9729;&#8595;</button>
       </div>
       <div class="row-buttons json-actions">
         <button id="applyJsonBtn" type="button">Apply JSON</button>
