@@ -4,6 +4,7 @@
       <h1>UX SFX Generator</h1>
       <p class="tagline">Browser additive synth for UI sonification</p>
       <p class="app-version">v${z}</p>
+      <div class="settings-compact">
       <div class="control-group">
         <label for="presetSelect">Preset</label>
         <select id="presetSelect" class="compact-select"></select>
@@ -20,6 +21,7 @@
         </div>
       </div>
       <p class="hint">Single source of truth: one controlled <code>spec</code> object drives all widgets.</p>
+      </div>
 
       <div class="section-head">
         <h2>Preview</h2>
