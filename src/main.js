@@ -89,9 +89,9 @@ app.innerHTML = `
       <div class="preview-stack">
         <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
-        <button id="playToggleBtn" class="inline-hint inline-play" type="button">play</button>
+        <button id="playToggleBtn" class="inline-hint inline-play" type="button" title="Play/Stop">&#9654;</button>
         <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
-        <button id="downloadInlineBtn" class="inline-hint inline-download" type="button">download wav</button>
+        <button id="downloadInlineBtn" class="inline-hint inline-download" type="button" title="Download WAV">wav</button>
       </div>
       <div class="row-buttons json-actions">
         <button id="applyJsonBtn" type="button">Apply JSON</button>
@@ -457,7 +457,7 @@ const stopPlayback = () => {
     state.sourceNode = null;
   }
   state.isPlaying = false;
-  ui.playToggleBtn.textContent = 'Play';
+  ui.playToggleBtn.textContent = '▶';
 };
 
 const play = async () => {
@@ -480,14 +480,14 @@ const play = async () => {
     if (state.sourceNode === source) {
       state.sourceNode = null;
       state.isPlaying = false;
-      ui.playToggleBtn.textContent = 'Play';
+      ui.playToggleBtn.textContent = '▶';
     }
   };
   source.start();
 
   state.sourceNode = source;
   state.isPlaying = true;
-  ui.playToggleBtn.textContent = 'Stop';
+  ui.playToggleBtn.textContent = '■';
 };
 
 const downloadWav = () => {
@@ -540,7 +540,7 @@ const togglePreviewMode = () => {
 const render = () => {
   ui.durationInput.value = formatNum(state.spec.duration, 3);
   ui.durationSlider.value = formatNum(state.spec.duration, 3);
-  ui.playToggleBtn.textContent = state.isPlaying ? 'Stop' : 'Play';
+  ui.playToggleBtn.textContent = state.isPlaying ? '■' : '▶';
   ui.layerCount.textContent = `${state.spec.layers.length} layer${state.spec.layers.length === 1 ? '' : 's'}`;
   renderLayerList();
   state.activeLayerDot = clamp(state.activeLayerDot, 0, Math.max(0, state.spec.layers.length - 1));
