@@ -26,7 +26,11 @@ const loadCustomPresets = () => {
 };
 
 const getPathLang = () => {
-  const seg = window.location.pathname.split('/').filter(Boolean)[0]?.toLowerCase();
+  const seg = window.location.pathname
+    .split('/')
+    .filter(Boolean)
+    .map((p) => p.toLowerCase())
+    .find((p) => SUPPORTED_LANGS.includes(p));
   return SUPPORTED_LANGS.includes(seg) ? seg : null;
 };
 
@@ -109,9 +113,9 @@ app.innerHTML = `
       <div class="preview-stack">
         <canvas id="waveCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
         <canvas id="specCanvas" class="preview-canvas" width="760" height="200" title="Click to switch view"></canvas>
-        <button id="playToggleBtn" class="inline-hint inline-play overlay-mini" type="button" title="Play/Stop">&#9654;</button>
+        <button id="playToggleBtn" class="inline-hint inline-play overlay-mini" type="button" title="Play/Stop">▶️</button>
         <button id="canvasToggleHint" class="inline-hint" type="button">toggle view</button>
-        <button id="downloadInlineBtn" class="inline-hint inline-download overlay-mini" type="button" title="Download WAV">&#9729;&#8595;</button>
+        <button id="downloadInlineBtn" class="inline-hint inline-download overlay-mini" type="button" title="Download WAV">📥</button>
       </div>
       <div class="row-buttons json-actions">
         <button id="applyJsonBtn" type="button">Apply JSON</button>
@@ -477,7 +481,7 @@ const stopPlayback = () => {
     state.sourceNode = null;
   }
   state.isPlaying = false;
-  ui.playToggleBtn.textContent = '▶';
+  ui.playToggleBtn.textContent = '▶️';
 };
 
 const play = async () => {
@@ -500,14 +504,14 @@ const play = async () => {
     if (state.sourceNode === source) {
       state.sourceNode = null;
       state.isPlaying = false;
-      ui.playToggleBtn.textContent = '▶';
+      ui.playToggleBtn.textContent = '▶️';
     }
   };
   source.start();
 
   state.sourceNode = source;
   state.isPlaying = true;
-  ui.playToggleBtn.textContent = '■';
+  ui.playToggleBtn.textContent = '⏹️';
 };
 
 const downloadWav = () => {
@@ -560,7 +564,7 @@ const togglePreviewMode = () => {
 const render = () => {
   ui.durationInput.value = formatNum(state.spec.duration, 3);
   ui.durationSlider.value = formatNum(state.spec.duration, 3);
-  ui.playToggleBtn.textContent = state.isPlaying ? '■' : '▶';
+  ui.playToggleBtn.textContent = state.isPlaying ? '⏹️' : '▶️';
   ui.layerCount.textContent = `${state.spec.layers.length} layer${state.spec.layers.length === 1 ? '' : 's'}`;
   renderLayerList();
   state.activeLayerDot = clamp(state.activeLayerDot, 0, Math.max(0, state.spec.layers.length - 1));
